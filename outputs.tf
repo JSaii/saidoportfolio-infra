@@ -1,0 +1,9 @@
+output "live_site_url" {
+  description = "Public website endpoint for the production site"
+  value       = aws_s3_bucket_website_configuration.live.website_endpoint
+}
+
+output "test_site_url" {
+  description = "Public website endpoint for the staging site"
+  value       = aws_s3_bucket_website_configuration.test.website_endpoint
+}
