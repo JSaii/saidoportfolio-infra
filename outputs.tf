@@ -7,3 +7,7 @@ output "test_site_url" {
   description = "Public website endpoint for the staging site"
   value       = aws_s3_bucket_website_configuration.test.website_endpoint
 }
+
+output "live_cloudfront_url" {
+  value = aws_cloudfront_distribution.live_cf.domain_name
+}
