@@ -11,3 +11,8 @@ output "test_site_url" {
 output "live_cloudfront_url" {
   value = aws_cloudfront_distribution.live_cf.domain_name
 }
+
+output "test_cloudfront_url" {
+  value = aws_cloudfront_distribution.test_cf.domain_name
+}
+

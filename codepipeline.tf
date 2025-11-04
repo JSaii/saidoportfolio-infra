@@ -30,7 +30,7 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
 
 # Artifact bucket for CodePipeline
 resource "aws_s3_bucket" "artifact_live" {
-  bucket = "saidoportfolio-artifacts-live"
+  bucket = "saidoportfolio-artifacts-live-us"
   tags = {
     Project = "SaidoPortfolio"
     Env     = "production"
@@ -80,7 +80,7 @@ resource "aws_codepipeline" "live_pipeline" {
       input_artifacts = ["source_output"]
 
       configuration = {
-        BucketName = "saidoportfolio-live"
+        BucketName = "saidoportfolio-live-us"
         Extract    = "true"
       }
     }
@@ -119,7 +119,7 @@ resource "aws_iam_role_policy" "codepipeline_policy_test" {
 
 # Artifact bucket for CodePipeline
 resource "aws_s3_bucket" "artifact_test" {
-  bucket = "saidoportfolio-artifacts-test"
+  bucket = "saidoportfolio-artifacts-test-us"
   tags = {
     Project = "SaidoPortfolio"
     Env     = "staging"
@@ -170,7 +170,7 @@ resource "aws_codepipeline" "test_pipeline" {
       input_artifacts = ["source_output"]
 
       configuration = {
-        BucketName = "saidoportfolio-test"
+        BucketName = "saidoportfolio-test-us"
         Extract    = "true"
       }
     }
