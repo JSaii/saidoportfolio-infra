@@ -16,12 +16,17 @@ resource "aws_iam_role" "codepipeline_role" {
 
 resource "aws_iam_role_policy" "codepipeline_policy" {
   role = aws_iam_role.codepipeline_role.id
+
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
         Effect   = "Allow"
-        Action   = ["s3:*", "iam:PassRole"]
+        Action   = [
+          "s3:*",
+          "iam:PassRole",
+          "lambda:InvokeFunction"
+        ]
         Resource = "*"
       }
     ]
@@ -45,6 +50,12 @@ resource "aws_codepipeline" "live_pipeline" {
     location = aws_s3_bucket.artifact_live.bucket
     type     = "S3"
   }
+
+  depends_on = [
+    aws_lambda_function.invalidate_lambda,
+    aws_s3_bucket.artifact_live,
+    aws_iam_role.codepipeline_role,
+  ]
 
   # ---------- SOURCE ----------
   stage {
@@ -85,6 +96,24 @@ resource "aws_codepipeline" "live_pipeline" {
       }
     }
   }
+
+  stage {
+  name = "InvalidateCache"
+
+  action {
+    name            = "InvalidateCloudFrontLive"
+    category        = "Invoke"
+    owner           = "AWS"
+    provider        = "Lambda"
+    version         = "1"
+    input_artifacts = ["source_output"]
+
+    configuration = {
+      FunctionName = aws_lambda_function.invalidate_lambda.function_name
+     }
+   }
+ }
+
 }
 
 # ================CODEPIPELINE - TEST================
@@ -105,12 +134,17 @@ resource "aws_iam_role" "codepipeline_role_test" {
 
 resource "aws_iam_role_policy" "codepipeline_policy_test" {
   role = aws_iam_role.codepipeline_role_test.id
+
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
         Effect   = "Allow"
-        Action   = ["s3:*", "iam:PassRole"]
+        Action   = [
+          "s3:*",
+          "iam:PassRole",
+          "lambda:InvokeFunction"
+        ]
         Resource = "*"
       }
     ]
@@ -135,6 +169,12 @@ resource "aws_codepipeline" "test_pipeline" {
     location = aws_s3_bucket.artifact_test.bucket
     type     = "S3"
   }
+
+  depends_on = [
+    aws_lambda_function.invalidate_lambda_test,
+    aws_s3_bucket.artifact_test,
+    aws_iam_role.codepipeline_role_test,
+  ]
 
   # ---------- SOURCE ----------
   stage {
@@ -175,4 +215,21 @@ resource "aws_codepipeline" "test_pipeline" {
       }
     }
   }
+
+  stage {
+  name = "InvalidateCache"
+
+  action {
+    name            = "InvalidateCloudFrontTest"
+    category        = "Invoke"
+    owner           = "AWS"
+    provider        = "Lambda"
+    version         = "1"
+    input_artifacts = ["source_output"]
+
+    configuration = {
+      FunctionName = aws_lambda_function.invalidate_lambda_test.function_name
+     }
+   }
+ }
 }
