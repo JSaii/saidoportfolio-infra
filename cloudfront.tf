@@ -66,9 +66,26 @@ resource "aws_cloudfront_origin_access_control" "test_oac" {
   signing_protocol                  = "sigv4"
 }
 
+# ---------- PUBLIC KEY ----------
+resource "aws_cloudfront_public_key" "test_public_key" {
+  name        = "saidoportfolio-test-public-key"
+  comment     = "Public key for signed URLs on test.josephsaido.com"
+  encoded_key = file("${path.module}/public_key.pem")
+}
+
+# ---------- KEY GROUP ----------
+resource "aws_cloudfront_key_group" "test_key_group" {
+  name  = "saidoportfolio-test-key-group"
+  items = [aws_cloudfront_public_key.test_public_key.id]
+}
+
 resource "aws_cloudfront_distribution" "test_cf" {
   enabled             = true
   default_root_object = "index.html"
+
+  depends_on = [
+  aws_cloudfront_key_group.test_key_group
+  ]
 
   origin {
     domain_name              = aws_s3_bucket.test.bucket_regional_domain_name
@@ -82,6 +99,7 @@ resource "aws_cloudfront_distribution" "test_cf" {
     target_origin_id = "test-s3-origin"
 
     viewer_protocol_policy = "redirect-to-https"
+    trusted_key_groups = [aws_cloudfront_key_group.test_key_group.id]
 
     forwarded_values {
       query_string = false

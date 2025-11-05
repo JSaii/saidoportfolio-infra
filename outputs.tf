@@ -16,3 +16,8 @@ output "test_cloudfront_url" {
   value = aws_cloudfront_distribution.test_cf.domain_name
 }
 
+output "test_key_id" {
+  description = "CloudFront public key ID used for signing URLs"
+  value       = aws_cloudfront_public_key.test_public_key.id
+}
+
