@@ -9,6 +9,14 @@ resource "aws_cloudfront_origin_access_control" "live_oac" {
   signing_protocol                  = "sigv4"
 }
 
+resource "aws_cloudfront_function" "restrict_domain" {
+  name    = "restrict-default-domain"
+  runtime = "cloudfront-js-1.0"
+  comment = "Block access except josephsaido.com and www.josephsaido.com"
+
+  code = file("${path.module}/cloudfront_restrict_domain.js")
+}
+
 resource "aws_cloudfront_distribution" "live_cf" {
   enabled             = true
   default_root_object = "index.html"
@@ -23,8 +31,12 @@ resource "aws_cloudfront_distribution" "live_cf" {
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "live-s3-origin"
-
     viewer_protocol_policy = "redirect-to-https"
+
+    function_association {
+    event_type   = "viewer-request"
+    function_arn = aws_cloudfront_function.restrict_domain.arn
+    }
 
     forwarded_values {
       query_string = false

@@ -46,21 +46,6 @@ resource "aws_s3_bucket_policy" "live" {
             "AWS:SourceArn" = aws_cloudfront_distribution.live_cf.arn
           }
         }
-      },
-      {
-        Sid       = "DenyAccessFromDirectCloudFrontURL"
-        Effect    = "Deny"
-        Principal = "*"
-        Action    = ["s3:GetObject"]
-        Resource  = "${aws_s3_bucket.live.arn}/*"
-        Condition = {
-          StringNotEqualsIfExists = {
-            "aws:Referer" = [
-              "https://josephsaido.com/",
-              "https://www.josephsaido.com/"
-            ]
-          }
-        }
       }
     ]
   })
