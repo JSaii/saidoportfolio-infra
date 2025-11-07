@@ -29,7 +29,10 @@ def lambda_handler(event, context):
         if (now - last).total_seconds() < 60:
             return {
                 "statusCode": 200,
-                "headers": {"Content-Type": "application/json"},
+                "headers": {"Content-Type": "application/json",
+                            "Access-Control-Allow-Origin": "*",
+                            "Access-Control-Allow-Headers": "*",
+                            "Access-Control-Allow-Methods": "GET,OPTIONS"},
                 "body": json.dumps({
                     "message": "Already counted recently",
                     "count": current_count,
@@ -61,7 +64,10 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
-        "headers": {"Content-Type": "application/json"},
+        "headers": {"Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "*",
+                    "Access-Control-Allow-Methods": "GET,OPTIONS"},
         "body": json.dumps({
             "newCount": int(resp["Attributes"]["count"]["N"]),
             "timestamp": now.isoformat()
