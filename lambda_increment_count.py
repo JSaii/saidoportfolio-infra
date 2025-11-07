@@ -69,7 +69,7 @@ def lambda_handler(event, context):
                     "Access-Control-Allow-Headers": "*",
                     "Access-Control-Allow-Methods": "GET,OPTIONS"},
         "body": json.dumps({
-            "newCount": int(resp["Attributes"]["count"]["N"]),
+            "count": int(resp["Attributes"]["count"]["N"]),
             "timestamp": now.isoformat()
         })
     }
